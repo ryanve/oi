@@ -1,7 +1,7 @@
 /*!
- * oi           Standalone DOM ready method with jQueryish functionality and
- *              bloody ballistic integration capabilities. See #integration notes
- *              at the bottom of this file. Based on github.com/ded/domready
+ * oi           Standalone DOM ready module with jQueryish usage and bloody
+ *              ballistic integration capabilities. See #integration notes at
+ *              the bottom of this file. Based on github.com/ded/domready
  * @author      Ryan Van Etten (c) 2012
  * @link        http://github.com/ryanve/oi
  * @license     MIT
@@ -181,8 +181,8 @@
      
     Use `oi.bridge(receiver)` to integrate domReady/ready into the receiver. By
     default, the receiver will become the first arg passed to fns fired via the 
-    ready methods. This is probably what you do. But if you want have a different
-    arg passed you use the 3rd  param of bridge()  OR you can use the default bridge 
+    ready methods. This is probably what you'll want to do. But if you want to have
+    a different arg passed, use the 3rd  param of bridge() OR use the default bridge 
     and then use the .remix method. (See remixReady.)
      
     In fns passed to domReady/.ready methods created via bridge/relay
