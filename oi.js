@@ -194,7 +194,7 @@
     The other difference is that handlers added via $(document).ready are 
     retro-fired and ones added by .on() are not. In other words, in jQuery, if
     you add a ready handler via .on() after the DOM ready flush has happened
-    it will NOT be fired. But if you use $(document).ready or $(handler) 
+    it will NOT be fired. But if you use $(document).ready or $(handler) it will.
     
     To properly accomplish full integration of domReady into an event library 
     that wants to have jQuery-compatible .on() and .trigger() methods, do this: 
