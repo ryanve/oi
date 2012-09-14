@@ -57,7 +57,7 @@ receiver(document).ready(function (receiver) {
 The `.domReady` (and `.fn.ready`) methods both contain both a `.remix()` method that can be used for freeform integration. Use this if you want to create a new version of the ready function which sends multiple custom args. The `.remix()` method returns a new version of itself:
 
 ```js
-var customReadyMethod = oi.domReady.remix(customArg0, customArg1 /*, ...*/);
+receiver.domReady = oi.domReady.remix(customArg0, customArg1 /*, ...*/);
 ```
 
-See advanced #integration notes in [the source](https://github.com/ryanve/oi/blob/master/oi.js).
+See advanced [#integration notes in the source](https://github.com/ryanve/oi/blob/master/oi.js).
