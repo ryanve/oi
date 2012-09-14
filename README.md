@@ -45,6 +45,15 @@ receiver.domReady(function (receiver) {
 });
 ```
 
+jQuery-compatible receivers also get `.fn.ready`:
+
+```js
+receiver(document).ready(function (receiver) {
+    // This function fires when the DOM is ready.
+	// `this === document` in here
+});
+```
+
 The `.domReady` (and `.fn.ready`) methods both contain both a `.remix()` method that can be used for freeform integration. Use this if you want to create a new version of the ready function which sends multiple custom args. The `.remix()` method returns a new version of itself:
 
 ```js
