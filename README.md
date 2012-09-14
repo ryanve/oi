@@ -1,7 +1,15 @@
 [oi](https://github.com/ryanve/oi)
 ==
 
-cross-browser standalone DOM ready method:
+cross-browser standalone DOM ready module
+
+**[CDN](http://airve.github.com)**: [dev](http://airve.github.com/js/oi/oi.js) | [min](http://airve.github.com/js/oi/oi.min.js)
+
+```
+$ npm install oi
+```
+
+Fire a function when the DOM is ready:
 
 ```js
 oi.domReady(function (oi) {
@@ -10,7 +18,7 @@ oi.domReady(function (oi) {
 });
 ```
 
-Note that `oi.domReady` and `oi.fn.ready` are identical. (The latter is provided for purely for integration purposes.)
+Note that `oi.domReady` and `oi.fn.ready` are identical. The latter is provided purely for integration purposes.
 
 **oi** also provides two simple cross-browser event methods:
 
