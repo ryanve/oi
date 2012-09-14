@@ -13,7 +13,6 @@ Fire a function when the DOM is ready:
 
 ```js
 oi.domReady(function (oi) {
-    // This function fires when the DOM is ready.
 	// `this === document` in here
 });
 ```
@@ -38,7 +37,6 @@ The default behavior of the `oi.bridge()` makes it so that the `receiver` become
 
 ```js
 receiver.domReady(function (receiver) {
-    // This function fires when the DOM is ready.
 	// `this === document` in here
 });
 ```
@@ -47,7 +45,6 @@ jQuery-compatible receivers also get `.fn.ready`:
 
 ```js
 receiver(document).ready(function (receiver) {
-    // This function fires when the DOM is ready.
 	// `this === document` in here
 });
 ```
