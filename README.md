@@ -29,7 +29,7 @@ oi.removeEvent(elem, type, handler);
 
 ### integration
 
-Use the `oi.bridge(receiver)` to integrate `oi` into a receiver (or host). Integrated methods include the top-level `.domReady`/`.addEvent`/`.removeEvent` methods. and if the `receiver` has an `.fn` object, it will also receive `.fn.ready`:
+**oi** has a special method called `.bridge()` designed for integration. Integrated methods include the top-level `.domReady`/`.addEvent`/`.removeEvent` methods. If the `receiver` has an `.fn` object, it will also receive `.fn.ready`:
 
 ```js
 oi.bridge(receiver) // integrate `oi`'s public methods into `receiver` (won't overwrite existing props)
