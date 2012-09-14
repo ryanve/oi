@@ -7,6 +7,8 @@
 $ npm install oi
 ```
 
+### usage
+
 Fire a function when the DOM is ready:
 
 ```js
@@ -16,11 +18,11 @@ oi.domReady(function (oi) {
 });
 ```
 
-**oi** also provides two simple cross-browser event methods:
+Simple cross-browser event methods:
 
 ```js
-oi.addEvent(elem, type, handler);
-oi.removeEvent(elem, type, handler);
+oi.addEvent(elem, eventName, handler);
+oi.removeEvent(elem, eventName, handler);
 ```
 
 ### integration
