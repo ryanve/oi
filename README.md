@@ -1,7 +1,5 @@
-[oi](https://github.com/ryanve/oi)
+[oi – cross-browser DOM ready module](https://github.com/ryanve/oi)
 ==
-
-cross-browser standalone DOM ready module
 
 **[CDN](http://airve.github.com)**: [dev](http://airve.github.com/js/oi/oi.js) | [min](http://airve.github.com/js/oi/oi.min.js)
 
@@ -18,8 +16,6 @@ oi.domReady(function (oi) {
 });
 ```
 
-Note that `oi.domReady` and `oi.fn.ready` are identical. The latter is provided purely for integration purposes.
-
 **oi** also provides two simple cross-browser event methods:
 
 ```js
@@ -29,7 +25,7 @@ oi.removeEvent(elem, type, handler);
 
 ### integration
 
-**oi** has a special method called `.bridge()` designed for integration. Integrated methods include the top-level `.domReady`/`.addEvent`/`.removeEvent` methods. If the `receiver` has an `.fn` object, it will also receive `.fn.ready`:
+**oi** has a special method called `.bridge()` designed for integration. Integrated methods include the top-level `.domReady`/`.addEvent`/`.removeEvent` methods. If the `receiver` has an `.fn` object, it will also receive `.fn.ready`. Note that `oi.domReady` and `oi.fn.ready` are identical. The latter is provided purely for integration purposes.
 
 ```js
 oi.bridge(receiver) // integrate `oi`'s public methods into `receiver` (won't overwrite existing props)
