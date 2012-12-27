@@ -1,2 +1,4 @@
 // bridge file for github.com/ender-js
-require('oi')['bridge'](ender);
+(function ($, require, name) {
+    $ && require && (require(name))['bridge']($);
+}(this['ender'], this['require'], 'oi'));
