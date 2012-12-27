@@ -1,2 +1,2 @@
-// bridge file for ender.no.de
+// bridge file for github.com/ender-js
 require('oi')['bridge'](ender);
