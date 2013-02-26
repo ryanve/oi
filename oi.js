@@ -14,7 +14,7 @@
 , indent: 4, maxerr: 180 */
 
 (function (root, name, factory) {// github.com/umdjs/umd
-    if ( typeof module != 'undefined' && module['exports'] ) { 
+    if (typeof module != 'undefined' && module['exports']) { 
         module['exports'] = factory(); // node / ender / common
     } else { root[name] = factory(); } // browser
 }(this, 'oi', function () {
@@ -26,7 +26,7 @@
 
     var win = window
       , doc = document
-      , readyStack = []  // array of fns to fire when the DOM is ready
+      , readyStack = []  // fns to fire when the DOM is ready
       , slice = readyStack.slice
       , docElem = doc.documentElement
       , needsHack = !!docElem.doScroll
@@ -47,10 +47,10 @@
      * @param {(boolean|number)=} argsArray  is an array of args to supply to `fn`
      */
     function pushOrFire (fn, argsArray, forceFire) {
-        if ( isReady || forceFire ) {
-            // Inside the fn `this` refers to the `document`
+        if (isReady || forceFire) {
+            // Use document as scope (same as jQuery)
             // Supply args defined @ remixReady
-            fn.apply( doc, argsArray || [] );
+            fn.apply(doc, argsArray || []);
         } else {
             // Push an object onto the readyStack that includes the
             // func to fire and the arguments array so that the 
@@ -62,10 +62,9 @@
     /** 
      * Fire all funcs in the readyStack (clearing stack as it's fired)
      */
-    function flush () {
-
+    function flush() {
         var ob;
-        // When the hack is needed, we prevent the flush from
+        // When the hack is needed, prevent the flush from
         // running until the readyState regex passes:
         if ( needsHack && !(/^c/).test(doc.readyState) ) { return; }
         
@@ -74,11 +73,10 @@
 
         // The flush itself only runs once:
         isReady = 1; // Record that the DOM is ready ( see usage in pushOrFire )
-        while ( ob = readyStack.shift() ) {// each object added via pushOrFire
-            pushOrFire( ob.f, ob.a );
+        while (ob = readyStack.shift()) {// each object added via pushOrFire
+            pushOrFire(ob.f, ob.a);
         }
         readyStack = null;
-
     }
 
     // Add the ready listener:
@@ -90,13 +88,13 @@
      * @param {Function}  fn            the function to fire when the DOM is ready
      * @param {Array=}    argsArray     is an array of args to supply to `fn`
      */
-    domReady = needsHack ? function (fn, argsArray) {
-        if ( self != top) {
+    domReady = needsHack ? function(fn, argsArray) {
+        if (self != top) {
             pushOrFire(fn, argsArray);
         } else {
             try { 
                 docElem.doScroll('left'); 
-            } catch (e) { 
+            } catch (e) {
                 return setTimeout(function () { 
                     domReady(fn, argsArray); 
                 }, 50); 
@@ -105,76 +103,75 @@
         }
     } : pushOrFire;
     
-    /* 
-     * Utility for making the public domReady method(s)
-     * @param  {...}  args  are 0 or more args that fns passed to domReady will receive
+    /** 
+     * oi.domReady.remix()    Utility for making the public domReady method(s)
+     * @param  {...}  args    are 0 or more args that fns passed to domReady will receive
      * @return {Function}
      */    
-    function remixReady (args) {//  (arg 0 expected to be host $ function if applicable)
+    function remixReady(args) {// arguments[0] expected to be host $ function if applicable
         
-        // The `args` get passed to `fn` when fired ( see pushOrFire )
-        args = slice.call(arguments);  
+        args = slice.call(arguments);  // see pushOrFire
 
         function ready (fn) {// this becomes the actual domReady/.ready method(s)
             domReady(fn, args); // call the outer local domReady method, which takes args
             if (this !== win) { return this; } // chain instance or parent but not the global scope
         }
 
-        // Include refs to the relay/remix methods. Every "remixed" version gets
-        // refs back to these, so that they can remixed again or detected as such.
-        // More about bridge/relay can be found in the source @link github.com/ryanve/dj
-        ready['remix'] = remixReady; // .remix is for freeform extending.
-        ready['relay'] = relayReady; // .relay is for extending via bridge/relay.
+        // Include the relay/remix methods for further remixing. 
+        // See @link github.com/ryanve/dj
+        ready['remix'] = remixReady; // for freeform extending.
+        ready['relay'] = relayReady; // for extending via bridge/relay
 
-        return ready; 
-
-    }// ===> oi.domReady.remix()
-    
-    // 
-    function relayReady ($) {
-        return remixReady($ || void 0);
-    }// ===> oi.domReady.relay()
+        return ready;
+    }
     
     /**
-     * bridge()                         Integrate applicable methods into a host. 
-     *                                  This `bridge()` is specific to this module, 
-     *                                  however it uses the same signature as the
-     *                                  library-agnostic `dj.bridge()`, available 
-     *                                  @link github.com/ryanve/dj
-     *         
-     * @this  {Object|Function}                supplier
-     * @param {Object|Function}         r      receiver
-     * @param {boolean=}                force  whether to overwrite existing methods (default: false)
-     * @param {(Function|boolean)=}     $      the top-level of the host api. (default: `r`)
+     * oi.domReady.relay()
+     * @param  {*=} $
+     * @return {Function}
      */
-    function bridge ( r, force, $ ) {
+    function relayReady($) {
+        return remixReady($ || void 0);
+    }
+    
+    /**
+     * oi.bridge()                     Integrate applicable methods into a host. 
+     *                                 This `bridge()` is specific to this module, 
+     *                                 however it uses the same signature as the
+     *                                 library-agnostic `dj.bridge()`, available 
+     *                                 @link github.com/ryanve/dj
+     * @this  {Object|Function}              supplier
+     * @param {Object|Function}        r     receiver
+     * @param {boolean=}               force whether to overwrite existing methods (default: false)
+     * @param {(Function|boolean)=}    $     the top-level of the host api. (default: `r`)
+     */
+    function bridge(r, force, $) {
 
         var ready, effin;
-        if ( !r ) { return; }
+        if (!r) { return; }
         force = true === force; // require explicit true to force
         $ = typeof $ == 'function' || $ === false ? $ : r; // allow null
         
-        if ( force || r['domReady'] == null ) {
+        if (force || r['domReady'] == null) {
             r['domReady'] = ready = relayReady($);
         }
         
-        if ( effin = r['fn'] ) {
-            if ( force || effin['ready'] == null ) {
+        if (effin = r['fn']) {
+            if (force || null == effin['ready']) {
                 effin['ready'] = ready || relayReady($);
             }
         }
         
-        if ( force || r['addEvent'] == null ) {
+        if (force || null == r['addEvent']) {
             r['addEvent'] = add; 
         }
 
-        if ( force || r['removeEvent'] == null ) { 
+        if (force || null == r['removeEvent']) { 
             r['removeEvent'] = rem; 
         }
         
-        return r; // the receiver ( makes it so you can do `oi.bridge({fn: {}})` )
-
-    }// ===> oi.bridge()
+        return r; // the receiver - allows for `oi.bridge({fn: {}})`
+    }
     bridge['relay'] = false; // signify that this bridge only applies to this module
 
 
@@ -211,4 +208,4 @@
     // create the export:
     return bridge({ 'fn': {}, 'bridge': bridge });
 
-})); // factory and closure
+}));
