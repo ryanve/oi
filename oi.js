@@ -26,19 +26,18 @@
 
     var win = window
       , doc = document
+      , W3C = !!doc.addEventListener
+      , add = W3C ? function (node, type, fn) { node.addEventListener(type, fn, false); }
+                  : function (node, type, fn) { node.attachEvent('on' + type, fn); }
+      , rem = W3C ? function (node, type, fn) { node.removeEventListener(type, fn, false); }
+                  : function (node, type, fn) { node.detachEvent('on' + type, fn); }
       , readyStack = []  // fns to fire when the DOM is ready
       , slice = readyStack.slice
       , docElem = doc.documentElement
       , needsHack = !!docElem.doScroll
       , isReady = /^loade|c/.test(doc.readyState) // initial state
       , readyType = needsHack ? 'onreadystatechange' : 'DOMContentLoaded'
-      , domReady // internal version
-      , W3C = !!doc.addEventListener
-      , add = W3C ? function (node, type, fn) { node.addEventListener(type, fn, false); }
-                  : function (node, type, fn) { node.attachEvent('on' + type, fn); }
-      , rem = W3C ? function (node, type, fn) { node.removeEventListener(type, fn, false); }
-                  : function (node, type, fn) { node.detachEvent('on' + type, fn); }
-    ;
+      , domReady;  // internal version
 
     /* 
      * Push the readyStack or, if the DOM is already ready, fire the `fn`
@@ -112,7 +111,7 @@
         
         args = slice.call(arguments);  // see pushOrFire
 
-        function ready (fn) {// this becomes the actual domReady/.ready method(s)
+        function ready(fn) {// this becomes the actual domReady/.ready method(s)
             domReady(fn, args); // call the outer local domReady method, which takes args
             if (this !== win) { return this; } // chain instance or parent but not the global scope
         }
@@ -121,7 +120,6 @@
         // See @link github.com/ryanve/dj
         ready['remix'] = remixReady; // for freeform extending.
         ready['relay'] = relayReady; // for extending via bridge/relay
-
         return ready;
     }
     
