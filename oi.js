@@ -30,7 +30,7 @@
       , rem = W3C ? function(node, type, fn) { node.removeEventListener(type, fn, false); }
                   : function(node, type, fn) { node.detachEvent('on' + type, fn); }
       , readyStack = [] // fns to fire when the DOM is ready
-      , slice = readyStack.slice
+      , complete = /^c/ // regex for testing document.readyState
       , docElem = doc.documentElement
       , needsHack = !!docElem.doScroll
       , isReady = /^loade|c/.test(doc.readyState) // initial state
@@ -53,10 +53,9 @@
      */
     function flush() {
         var ob;
-        // When the hack is needed, prevent the flush from
-        // running until the readyState regex passes:
-        if (!needsHack || (/^c/).test(doc.readyState)) {
-            // Remove listener so that the flush loop only runs once.
+        // When the hack is needed, prevent running until the readyState regex passes:
+        if (!needsHack || complete.test(doc.readyState)) {
+            // Remove handler so that the loop only runs once.
             rem(doc, readyType, flush);
             isReady = 1; // Record that the DOM is ready.
             while (ob = readyStack.shift()) {
@@ -97,11 +96,13 @@
      * @return {Function}
      */    
     function remixReady(args) {
-        
-        args = slice.call(arguments);  // see pushOrFire
+    
+        // convert to array for faster firing later
+        args = []; 
+        args.push.apply(arguments);
 
-        function ready(fn) {// this becomes the actual domReady/.ready method(s)
-            domReady(fn, args); // call the outer local domReady method, which takes args
+        function ready(fn) {// becomes the actual domReady/.ready method
+            domReady(fn, args); // call the outer local method, which takes args
             if (this !== win) {
                 return this; 
             } // chain instance or parent but not the global scope
