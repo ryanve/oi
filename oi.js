@@ -5,7 +5,7 @@
  * @author      Ryan Van Etten (c) 2012
  * @link        http://github.com/ryanve/oi
  * @license     MIT
- * @version     0.9.0
+ * @version     0.9.1
  */
 
 /*jslint browser: true, devel: true, node: true, passfail: false, bitwise: true, continue: true
@@ -13,9 +13,9 @@
 , regexp: true, undef: true, sloppy: true, stupid: true, sub: true, vars: true, white: true
 , indent: 4, maxerr: 180 */
 
-(function (root, name, make) {
-    'undefined' != typeof module && module['exports'] ? module['exports'] = make() : root[name] = make();
-}(this, 'oi', function () {
+(function(root, name, make) {
+    typeof module != 'undefined' && module['exports'] ? module['exports'] = make() : root[name] = make();
+}(this, 'oi', function() {
 
     // Array notation is used on property names that we don't want the
     // Google Closure Compiler to rename in advanced optimization mode. 
@@ -25,35 +25,27 @@
     var win = window
       , doc = document
       , W3C = !!doc.addEventListener
-      , add = W3C ? function (node, type, fn) { node.addEventListener(type, fn, false); }
-                  : function (node, type, fn) { node.attachEvent('on' + type, fn); }
-      , rem = W3C ? function (node, type, fn) { node.removeEventListener(type, fn, false); }
-                  : function (node, type, fn) { node.detachEvent('on' + type, fn); }
-      , readyStack = []  // fns to fire when the DOM is ready
+      , add = W3C ? function(node, type, fn) { node.addEventListener(type, fn, false); }
+                  : function(node, type, fn) { node.attachEvent('on' + type, fn); }
+      , rem = W3C ? function(node, type, fn) { node.removeEventListener(type, fn, false); }
+                  : function(node, type, fn) { node.detachEvent('on' + type, fn); }
+      , readyStack = [] // fns to fire when the DOM is ready
       , slice = readyStack.slice
       , docElem = doc.documentElement
       , needsHack = !!docElem.doScroll
       , isReady = /^loade|c/.test(doc.readyState) // initial state
       , readyType = needsHack ? 'onreadystatechange' : 'DOMContentLoaded'
-      , domReady;  // internal version
+      , domReady; // internal version
 
     /* 
-     * Push the readyStack or, if the DOM is already ready, fire the `fn`
-     * @param {Function}          fn         the function to fire when the DOM is ready
-     * @param {Array=}            argsArray  is an array of args to supply to `fn`
-     * @param {(boolean|number)=} argsArray  is an array of args to supply to `fn`
+     * @param {Function}           fn     function to fire when the DOM is ready
+     * @param {(Array|Arguments)=} args   arguments to pass to `fn` when fired
+     * @param {(boolean|number)=}  fire   option to force fire
      */
-    function pushOrFire (fn, argsArray, forceFire) {
-        if (isReady || forceFire) {
-            // Use document as scope (same as jQuery)
-            // Supply args defined @ remixReady
-            fn.apply(doc, argsArray || []);
-        } else {
-            // Push an object onto the readyStack that includes the
-            // func to fire and the arguments array so that the 
-            // arguments are accessible inside flush().
-            readyStack.push({ f: fn, a: argsArray });
-        }
+    function pushOrFire(fn, args, fire) {
+        // Fire using document as scope (like jQuery) and pass args defined @ remixReady.
+        // Or, push an object onto the readyStack that includes the fn and arguments.
+        isReady || fire ? fn.apply(doc, args || []) : readyStack.push({ f: fn, a: args });
     }
 
     /** 
@@ -63,17 +55,15 @@
         var ob;
         // When the hack is needed, prevent the flush from
         // running until the readyState regex passes:
-        if ( needsHack && !(/^c/).test(doc.readyState) ) { return; }
-        
-        // Remove the listener: 
-        rem(doc, readyType, flush);
-
-        // The flush itself only runs once:
-        isReady = 1; // Record that the DOM is ready ( see usage in pushOrFire )
-        while (ob = readyStack.shift()) {// each object added via pushOrFire
-            pushOrFire(ob.f, ob.a);
+        if (!needsHack || (/^c/).test(doc.readyState)) {
+            // Remove listener so that the flush loop only runs once.
+            rem(doc, readyType, flush);
+            isReady = 1; // Record that the DOM is ready.
+            while (ob = readyStack.shift()) {
+                pushOrFire(ob.f, ob.a);
+            }
+            readyStack = null;
         }
-        readyStack = null;
     }
 
     // Add the ready listener:
@@ -94,24 +84,27 @@
             } catch (e) {
                 return setTimeout(function () { 
                     domReady(fn, argsArray); 
-                }, 50); 
+                }, 50);
             }
-            pushOrFire(fn, argsArray, true);
+            pushOrFire(fn, argsArray, 1);
         }
     } : pushOrFire;
     
     /** 
      * oi.domReady.remix()    Utility for making the public domReady method(s)
-     * @param  {...}  args    are 0 or more args that fns passed to domReady will receive
+     * @param  {...}  args    0 or more args that fns passed to domReady will receive
+     *                        arguments[0] expects a host $ function when applicable
      * @return {Function}
      */    
-    function remixReady(args) {// arguments[0] expected to be host $ function if applicable
+    function remixReady(args) {
         
         args = slice.call(arguments);  // see pushOrFire
 
         function ready(fn) {// this becomes the actual domReady/.ready method(s)
             domReady(fn, args); // call the outer local domReady method, which takes args
-            if (this !== win) { return this; } // chain instance or parent but not the global scope
+            if (this !== win) {
+                return this; 
+            } // chain instance or parent but not the global scope
         }
 
         // Include the relay/remix methods for further remixing. 
@@ -201,7 +194,7 @@
 
     ========================================================================= */
 
-    // create the export:
+    // export
     return bridge({ 'fn': {}, 'bridge': bridge });
 
 }));
