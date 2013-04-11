@@ -30,6 +30,7 @@
                       : function(node, type, fn) { node.attachEvent('on' + type, fn); }
       , remEv = isW3C ? function(node, type, fn) { node.removeEventListener(type, fn, false); }
                       : function(node, type, fn) { node.detachEvent('on' + type, fn); }
+
       , readyList = [] // fns to fire when the DOM is ready
       , slice = readyList.slice
       , isReady = /^loade|c/.test(doc.readyState) // initial state
@@ -45,7 +46,7 @@
       , pushOrFire = function(fn, args, fire) {
             // Fire using document as scope (like jQuery) and pass args defined @ remixReady.
             // Or, push an object onto the readyList that includes the fn and arguments.
-            isReady || fire ? fn.apply(doc, args || []) : readyList.push({ f: fn, a: args });
+            isReady || fire ? fn.apply(doc, args || []) : readyList.push([ fn, args ]);
         }
         
       , /** 
@@ -65,16 +66,16 @@
             }
         } : pushOrFire;
 
-    addEv(doc, readyType, readyList.flush = function() {
-        var ob;
+    // The handler (readyList[0]) calls/flushes the (rest of the) list.
+    addEv(doc, readyType, readyList[0] = function() {
+        var data;
         if (!needsHack || complete.test(doc.readyState)) {
-            // Remove handler so that the loop only runs once.
-            remEv(doc, readyType, readyList.flush);
+            remEv(doc, readyType, readyList.shift()); // Remove/delist handler
             isReady = 1; // Record that the DOM is ready.
-            while (ob = readyList.shift()) { 
-                pushOrFire(ob.f, ob.a); 
+            // Call/flush funcs:
+            while (data = readyList.shift()) {
+                pushOrFire(data[0], data[1]);
             }
-            readyList = null;
         }
     });
     
