@@ -5,7 +5,7 @@
  * @author      Ryan Van Etten (c) 2012
  * @link        http://github.com/ryanve/oi
  * @license     MIT
- * @version     0.9.1
+ * @version     0.9.2
  */
 
 /*jslint browser: true, devel: true, node: true, passfail: false, bitwise: true, continue: true
@@ -25,70 +25,58 @@
     var win = window
       , doc = document
       , docElem = doc.documentElement
-      , W3C = !!doc.addEventListener
-      , add = W3C ? function(node, type, fn) { node.addEventListener(type, fn, false); }
-                  : function(node, type, fn) { node.attachEvent('on' + type, fn); }
-      , rem = W3C ? function(node, type, fn) { node.removeEventListener(type, fn, false); }
-                  : function(node, type, fn) { node.detachEvent('on' + type, fn); }
-      , readyStack = [] // fns to fire when the DOM is ready
-      , slice = readyStack.slice
+      , isW3C = !!doc.addEventListener
+      , addEv = isW3C ? function(node, type, fn) { node.addEventListener(type, fn, false); }
+                      : function(node, type, fn) { node.attachEvent('on' + type, fn); }
+      , remEv = isW3C ? function(node, type, fn) { node.removeEventListener(type, fn, false); }
+                      : function(node, type, fn) { node.detachEvent('on' + type, fn); }
+      , readyList = [] // fns to fire when the DOM is ready
+      , slice = readyList.slice
       , isReady = /^loade|c/.test(doc.readyState) // initial state
       , complete = /^c/   // regex for testing document.readyState
       , needsHack = !!docElem.doScroll
       , readyType = needsHack ? 'onreadystatechange' : 'DOMContentLoaded'
-      , domReady; // internal version
-
-    /* 
-     * @param {Function}           fn     function to fire when the DOM is ready
-     * @param {(Array|Arguments)=} args   arguments to pass to `fn` when fired
-     * @param {(boolean|number)=}  fire   option to force fire
-     */
-    function pushOrFire(fn, args, fire) {
-        // Fire using document as scope (like jQuery) and pass args defined @ remixReady.
-        // Or, push an object onto the readyStack that includes the fn and arguments.
-        isReady || fire ? fn.apply(doc, args || []) : readyStack.push({ f: fn, a: args });
-    }
-
-    /** 
-     * Fire all funcs in the readyStack (clearing stack as it's fired)
-     */
-    function flush() {
-        var ob;
-        // When the hack is needed, prevent running until the readyState regex passes:
-        if (!needsHack || complete.test(doc.readyState)) {
-            // Remove handler so that the loop only runs once.
-            rem(doc, readyType, flush);
-            isReady = 1; // Record that the DOM is ready.
-            while (ob = readyStack.shift()) {
-                pushOrFire(ob.f, ob.a);
-            }
-            readyStack = null;
+      
+       /**
+        * @param {Function}           fn     function to fire when the DOM is ready
+        * @param {(Array|Arguments)=} args   arguments to pass to `fn` when fired
+        * @param {(boolean|number)=}  fire   option to force fire
+        */
+      , pushOrFire = function(fn, args, fire) {
+            // Fire using document as scope (like jQuery) and pass args defined @ remixReady.
+            // Or, push an object onto the readyList that includes the fn and arguments.
+            isReady || fire ? fn.apply(doc, args || []) : readyList.push({ f: fn, a: args });
         }
-    }
-
-    // Add the ready listener:
-    add(doc, readyType, flush);
-
-    /* 
-     * Private `domReady` method:
-     * The `argsArray` parameter is for internal use ( but extendable via oi.bridge(yourLib) )
-     * @param {Function}  fn            the function to fire when the DOM is ready
-     * @param {Array=}    argsArray     is an array of args to supply to `fn`
-     */
-    domReady = needsHack ? function(fn, argsArray) {
-        if (self != top) {
-            pushOrFire(fn, argsArray);
-        } else {
-            try { 
+        
+      , /** 
+         * @param {Function}           fn      function to fire when the DOM is ready
+         * @param {(Array|Arguments)=} args    arguments to pass to `fn`
+         */
+        readyLocal = needsHack ? function(fn, args) {
+            if (self != top) {
+                pushOrFire(fn, args);
+            } else try {
                 docElem.doScroll('left'); 
+                pushOrFire(fn, args, 1);
             } catch (e) {
-                return setTimeout(function () { 
-                    domReady(fn, argsArray); 
+                return setTimeout(function() {
+                    readyLocal(fn, args); 
                 }, 50);
             }
-            pushOrFire(fn, argsArray, 1);
+        } : pushOrFire;
+
+    addEv(doc, readyType, readyList.flush = function() {
+        var ob;
+        if (!needsHack || complete.test(doc.readyState)) {
+            // Remove handler so that the loop only runs once.
+            remEv(doc, readyType, readyList.flush);
+            isReady = 1; // Record that the DOM is ready.
+            while (ob = readyList.shift()) { 
+                pushOrFire(ob.f, ob.a); 
+            }
+            readyList = null;
         }
-    } : pushOrFire;
+    });
     
     /** 
      * oi.domReady.remix()    Utility for making the public domReady method(s)
@@ -98,20 +86,20 @@
      */    
     function remixReady(args) {
         // convert to array for faster firing later
-        args = slice.call(arguments); 
+        args = slice.call(arguments);
 
-        function ready(fn) {// becomes the actual domReady/.ready method
-            domReady(fn, args); // call the outer local method, which takes args
+        function readyPublic(fn) {
+            readyLocal(fn, args);
             if (this !== win) {
-                return this; 
-            } // chain instance or parent but not the global scope
+                return this; // chain instance or parent but not the global scope
+            }
         }
 
-        // Include the relay/remix methods for further remixing. 
-        // See @link github.com/ryanve/dj
-        ready['remix'] = remixReady; // for freeform extending.
-        ready['relay'] = relayReady; // for extending via bridge/relay
-        return ready;
+        // include relay/remix for further remixing (github.com/ryanve/dj)
+        readyPublic['remix'] = remixReady; // for freeform extending
+        readyPublic['relay'] = relayReady; // for extending via bridge/relay
+
+        return readyPublic;
     }
     
     /**
@@ -138,8 +126,8 @@
 
         var ready, effin;
         if (!r) { return; }
-        force = true === force; // require explicit true to force
-        $ = typeof $ == 'function' || $ === false ? $ : r; // allow null
+        force = true === force; // must be explicit
+        $ = typeof $ == 'function' || $ === false ? $ : r;
         
         if (force || r['domReady'] == null) {
             r['domReady'] = ready = relayReady($);
@@ -152,11 +140,11 @@
         }
         
         if (force || null == r['addEvent']) {
-            r['addEvent'] = add; 
+            r['addEvent'] = addEv; 
         }
 
         if (force || null == r['removeEvent']) { 
-            r['removeEvent'] = rem; 
+            r['removeEvent'] = remEv; 
         }
         
         return r; // the receiver - allows for `oi.bridge({fn: {}})`
@@ -180,8 +168,8 @@
     object as the arg and are fired after ones added by $(document).ready
     The other difference is that handlers added via $(document).ready are 
     retro-fired and ones added by .on() are not. In other words, in jQuery, if
-    you add a ready handler via .on() after the DOM ready flush has happened
-    it will NOT be fired. But if you use $(document).ready or $(handler) it will.
+    you add a ready handler via .on() after the DOM ready flush has run, it
+    will NOT be fired. But if you use $(document).ready or $(handler) it will.
     
     To properly accomplish full integration of domReady into an event library 
     that wants to have jQuery-compatible .on() and .trigger() methods, do this: 
@@ -196,5 +184,4 @@
 
     // export
     return bridge({ 'fn': {}, 'bridge': bridge });
-
 }));
