@@ -5,7 +5,7 @@
  * @author      Ryan Van Etten (c) 2012
  * @link        http://github.com/ryanve/oi
  * @license     MIT
- * @version     0.9.3
+ * @version     0.9.4
  */
 
 /*jslint browser: true, devel: true, node: true, passfail: false, bitwise: true, continue: true
@@ -40,20 +40,20 @@
 
        /**
         * @param {Function}           fn     function to fire when the DOM is ready
-        * @param {(Array|Arguments)=} args   arguments to pass to `fn` when fired
+        * @param {Array|Arguments}    args   arguments to pass to `fn` when fired
         * @param {(boolean|number)=}  fire   option to force fire
         */
       , pushOrFire = function(fn, args, fire) {
             // Fire using document as scope (like jQuery) and pass args defined @ remixReady.
             // Or, push an object onto the readyList that includes the fn and arguments.
-            isReady || fire ? fn.apply(doc, args || []) : readyList.push([ fn, args ]);
+            isReady || fire ? fn.apply(doc, args) : readyList.push([ fn, args ]);
         }
 
-      , /** 
+        /** 
          * @param {Function}           fn      function to fire when the DOM is ready
          * @param {(Array|Arguments)=} args    arguments to pass to `fn`
          */
-        readyLocal = needsHack ? function(fn, args) {
+      , readyLocal = needsHack ? function(fn, args) {
             if (self != top) {
                 pushOrFire(fn, args);
             } else try {
