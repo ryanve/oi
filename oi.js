@@ -24,16 +24,17 @@
 
     var win = window
       , doc = document
+      , docElem = doc.documentElement
       , W3C = !!doc.addEventListener
       , add = W3C ? function(node, type, fn) { node.addEventListener(type, fn, false); }
                   : function(node, type, fn) { node.attachEvent('on' + type, fn); }
       , rem = W3C ? function(node, type, fn) { node.removeEventListener(type, fn, false); }
                   : function(node, type, fn) { node.detachEvent('on' + type, fn); }
       , readyStack = [] // fns to fire when the DOM is ready
-      , complete = /^c/ // regex for testing document.readyState
-      , docElem = doc.documentElement
-      , needsHack = !!docElem.doScroll
+      , slice = readyStack.slice
       , isReady = /^loade|c/.test(doc.readyState) // initial state
+      , complete = /^c/   // regex for testing document.readyState
+      , needsHack = !!docElem.doScroll
       , readyType = needsHack ? 'onreadystatechange' : 'DOMContentLoaded'
       , domReady; // internal version
 
@@ -96,10 +97,8 @@
      * @return {Function}
      */    
     function remixReady(args) {
-    
         // convert to array for faster firing later
-        args = [];
-        args.push.apply(args, arguments);
+        args = slice.call(arguments); 
 
         function ready(fn) {// becomes the actual domReady/.ready method
             domReady(fn, args); // call the outer local method, which takes args
@@ -197,4 +196,5 @@
 
     // export
     return bridge({ 'fn': {}, 'bridge': bridge });
+
 }));
