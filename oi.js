@@ -113,9 +113,8 @@
     }
     
     /**
-     * oi.bridge()                   Integrate applicable methods into a host. This bridge is
-     *                               specific to this module, but it use the same signature
-     *                               as dj.bridge() (github.com/ryanve/dj)
+     * oi.bridge()                    Integrate applicable methods into a host.
+     *                                Uses same signature as dj.bridge (github.com/ryanve/dj)
      * @param  {Object|Function}      r     receiver
      * @param  {boolean=}             force whether to overwrite existing props (default: false)
      * @param  {(Function|boolean)=}  $     top-level of the host api (default: `r`)
