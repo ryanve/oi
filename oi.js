@@ -37,7 +37,7 @@
       , complete = /^c/   // regex for testing document.readyState
       , needsHack = !!docElem.doScroll
       , readyType = needsHack ? 'onreadystatechange' : 'DOMContentLoaded'
-      
+
        /**
         * @param {Function}           fn     function to fire when the DOM is ready
         * @param {(Array|Arguments)=} args   arguments to pass to `fn` when fired
@@ -48,7 +48,7 @@
             // Or, push an object onto the readyList that includes the fn and arguments.
             isReady || fire ? fn.apply(doc, args || []) : readyList.push([ fn, args ]);
         }
-        
+
       , /** 
          * @param {Function}           fn      function to fire when the DOM is ready
          * @param {(Array|Arguments)=} args    arguments to pass to `fn`
@@ -105,8 +105,8 @@
     
     /**
      * oi.domReady.relay()
-     * @param  {*=} $
-     * @return {Function}
+     * @param   {*=} $
+     * @return  {Function}
      */
     function relayReady($) {
         return $ ? remixReady($) : remixReady();
@@ -116,9 +116,9 @@
      * oi.bridge()                   Integrate applicable methods into a host. This bridge is
      *                               specific to this module, but it use the same signature
      *                               as dj.bridge() (github.com/ryanve/dj)
-     * @param {Object|Function}      r     receiver
-     * @param {boolean=}             force whether to overwrite existing props (default: false)
-     * @param {(Function|boolean)=}  $     top-level of the host api (default: `r`)
+     * @param  {Object|Function}      r     receiver
+     * @param  {boolean=}             force whether to overwrite existing props (default: false)
+     * @param  {(Function|boolean)=}  $     top-level of the host api (default: `r`)
      */
     function bridge(r, force, $) {
         var key, ready, object;
@@ -133,22 +133,18 @@
         for (key in object) {
             (force || null == r[key]) && (r[key] = object[key]);
         }
-        (key = r['fn']) && (force || null == key['ready']) && (key['ready'] = ready)
+        (key = r['fn']) && (force || null == key['ready']) && (key['ready'] = ready);
         return r;
     }
     bridge['relay'] = false; // signify that this bridge only applies to this module
 
     /* == #integration notes =================================================
      
-    Use `oi.bridge(receiver)` to integrate domReady/ready into the receiver. By
-    default, the receiver will become the first arg passed to fns fired via the 
-    ready methods. This is probably what you'll want to do. But if you want to have
-    a different arg passed, use the 3rd  param of bridge() OR use the default bridge 
-    and then use the .remix method. (See remixReady.)
-     
-    In fns passed to domReady/.ready methods created via bridge/relay
-    the scope `this === document` (same as in jQuery) and the first arg 
-    can be specified to host the host lib. ( see bridge() && remixReady() ) 
+    Use `oi.bridge(receiver)` to integrate domReady/ready into a receiver. By
+    default, the receiver will be passed to fns fired via the ready methods. 
+    If you want to have a different arg passed, use the 3rd param of bridge() 
+    OR use the default bridge and then use the .remix method. The `document` 
+    is is used as the scope for jQuery-compatibility. See remixReady. 
          
     In jQuery, handlers added via .on('ready', handler) receive an eventData
     object as the arg and are fired after ones added by $(document).ready
@@ -160,8 +156,7 @@
     To properly accomplish full integration of domReady into an event library 
     that wants to have jQuery-compatible .on() and .trigger() methods, do this: 
 
-        oi.bridge(ender);        // integrate domReady/.ready into ender
-        ender.fn.ready(function ($) {  // fat/bean, ryanve/elo, and other event libs can do this
+        oi.bridge(ender).fn.ready(function($) {
             var $doc = $(this);
             $doc.trigger && $doc.trigger('ready');
         });
