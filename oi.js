@@ -109,7 +109,7 @@
      * @return {Function}
      */
     function relayReady($) {
-        return remixReady($ || void 0);
+        return $ ? remixReady($) : remixReady();
     }
     
     /**

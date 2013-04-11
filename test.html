@@ -1,61 +1,85 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset=utf-8>
+    <link rel=dns-prefetch href="//airve.github.com">
     <title>oi :: test suite</title>
     <meta name=viewport content="width=device-width,initial-scale=1.0">
     <meta name=author content="Ryan Van Etten">
+    <meta name=description content="JavaScript module tests: oi.js">
     <style>
-        body{ 
+        body {
              font:normal 100% sans-serif; 
              width:94%; max-width:1280px;
              margin: 0 auto; padding:20px 3%; 
              background:#eed; color:#133;
         }
-        #test{background:#8d2;max-width:100%;padding:3em;margin:1em 0}
-        [accesskey]:hover{cursor:pointer}
+        #test { background:#8d2; max-width:100%; padding:3em; margin:1em 0; }
+        [accesskey]:hover { cursor:pointer; }
     </style>
-    <script src="oi.js"></script><!-- github.com/ryanve/oi  -->
-    <script>
-    (function (document, console, oi) {
+    
+    <script src="http://airve.github.io/js/aok/aok.min.js"></script>
+    <script src="oi.js"></script>
 
-        var log = console && console.log ? function (s) {
-                console.log(s);
-            } : function (s, force) { 
-                force && alert(s); 
-            };
+    <script>
+    (function(document, aok, oi) {
+
+        var log = aok.log
+          , remixedFive = oi.domReady.remix(0, 1, 2, 3, 4)
+          , relayedZero = oi.domReady.relay()
+          , relayedFunc = oi.domReady.relay(aok)
+          , referenced = oi.domReady
         
-        log ( oi );
-        log ( oi.bridge({ fn: {} }) );
-        log ( oi.domReady === oi.fn.ready );
+        log(oi);
+        log(oi.bridge({ fn: {} }));
         
-        (oi.domReady.remix(log, 47))(function (o, n) {
-            log( o === log && document === this && n === 47 && 2 == arguments.length );
+        aok({
+            id: '.domReady === .fn.ready',
+            test: oi.domReady === oi.fn.ready
         });
         
-        (oi.domReady.relay(null, 88))(function (o, u) {
-            log( void 0 === o && o === u && 1 == arguments.length );
+        aok({
+            id:'returnVoid',
+            test: void 0 === referenced(function() {})
+        });
+        
+        aok({
+            id:'returnThis',
+            test: oi === oi.domReady(function() {})
+        });
+        
+        relayedZero(function() {
+            var bool = this === document && !arguments.length;
+            aok({ id: 'relayedZero', test: bool });
+        });
+        
+        relayedFunc(function(f) {
+            var bool = this === document && typeof f == 'function' && 1 === arguments.length;
+            aok({ id: 'relayedFunc', test: bool });
+        });
+        
+        remixedFive(function() {
+            var bool = this === document && 5 === arguments.length && 3 === arguments[3];
+            aok({ id: 'remixedFive', test: bool });
         });
 
         oi.domReady(function (u) {
-            var e = this.getElementById('test')
-              , i = 3, handler;
-
+            var handler, i = 2, e = this.getElementById('test');
             e.innerHTML = (e && e.nodeType 
                 ? "Oi! =) The DOM is ready. Now click this div. " 
                 : "Bugger =( oi.domReady did not work properly." );
-        
-            oi.addEvent(e, 'click', (handler = function () {
+
+            oi.addEvent(e, 'click', (handler = function() {
                 e.innerHTML += ' //// ' + e.tagName.toLowerCase() + " was clicked."
-                if ( !i-- ) {
+                if (!i--) {
                     oi.removeEvent(e, 'click', handler);
-                    e.innerHTML = 'Event removed. Next click should do nothing. All tests passed!';
+                    e.innerHTML = 'Event removed. Next click should do nothing. Event tests passed!';
                     e.removeAttribute('accesskey');
                 }
             }));
         });
     
-    }(document, this.console, this.oi));
+    }(document, aok, oi));
     </script>
 </head>
 <body>
