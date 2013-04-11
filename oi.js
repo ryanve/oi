@@ -113,14 +113,12 @@
     }
     
     /**
-     * oi.bridge()                   Integrate applicable methods into a host. 
-     *                               This `bridge()` is specific to this module.
-     *                               It uses the same signature as dj.bridge()
-     *                               @link github.com/ryanve/dj
-     * @this  {Object|Function}            supplier
+     * oi.bridge()                   Integrate applicable methods into a host. This bridge is
+     *                               specific to this module, but it use the same signature
+     *                               as dj.bridge() (github.com/ryanve/dj)
      * @param {Object|Function}      r     receiver
-     * @param {boolean=}             force whether to overwrite existing methods (default: false)
-     * @param {(Function|boolean)=}  $     the top-level of the host api. (default: `r`)
+     * @param {boolean=}             force whether to overwrite existing props (default: false)
+     * @param {(Function|boolean)=}  $     top-level of the host api (default: `r`)
      */
     function bridge(r, force, $) {
         var key, ready, object;
@@ -171,5 +169,5 @@
     ========================================================================= */
 
     // export
-    return bridge({ 'fn': {}, 'bridge': bridge });
+    return bridge({ 'fn': {}, 'bridge': bridge }, true);
 }));
