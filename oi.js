@@ -5,7 +5,7 @@
  * @author      Ryan Van Etten (c) 2012
  * @link        http://github.com/ryanve/oi
  * @license     MIT
- * @version     0.9.2
+ * @version     0.9.3
  */
 
 /*jslint browser: true, devel: true, node: true, passfail: false, bitwise: true, continue: true
@@ -86,7 +86,7 @@
      * @return {Function}
      */    
     function remixReady(args) {
-        // convert to array for faster firing later
+        // make array for faster firing later
         args = slice.call(arguments);
 
         function readyPublic(fn) {
@@ -113,45 +113,32 @@
     }
     
     /**
-     * oi.bridge()                     Integrate applicable methods into a host. 
-     *                                 This `bridge()` is specific to this module, 
-     *                                 however it uses the same signature as the
-     *                                 library-agnostic `dj.bridge()`, available 
-     *                                 @link github.com/ryanve/dj
-     * @this  {Object|Function}              supplier
-     * @param {Object|Function}        r     receiver
-     * @param {boolean=}               force whether to overwrite existing methods (default: false)
-     * @param {(Function|boolean)=}    $     the top-level of the host api. (default: `r`)
+     * oi.bridge()                   Integrate applicable methods into a host. 
+     *                               This `bridge()` is specific to this module.
+     *                               It uses the same signature as dj.bridge()
+     *                               @link github.com/ryanve/dj
+     * @this  {Object|Function}            supplier
+     * @param {Object|Function}      r     receiver
+     * @param {boolean=}             force whether to overwrite existing methods (default: false)
+     * @param {(Function|boolean)=}  $     the top-level of the host api. (default: `r`)
      */
     function bridge(r, force, $) {
-
-        var ready, effin;
-        if (!r) { return; }
+        var key, ready, object;
+        if (null == r) { return; }
+        ready = relayReady($ || r)
+        object = {
+            'domReady': ready
+          , 'addEvent': addEv
+          , 'removeEvent': remEv
+        };
         force = true === force; // must be explicit
-        $ = typeof $ == 'function' || $ === false ? $ : r;
-        
-        if (force || r['domReady'] == null) {
-            r['domReady'] = ready = relayReady($);
+        for (key in object) {
+            (force || null == r[key]) && (r[key] = object[key]);
         }
-        
-        if (effin = r['fn']) {
-            if (force || null == effin['ready']) {
-                effin['ready'] = ready || relayReady($);
-            }
-        }
-        
-        if (force || null == r['addEvent']) {
-            r['addEvent'] = addEv; 
-        }
-
-        if (force || null == r['removeEvent']) { 
-            r['removeEvent'] = remEv; 
-        }
-        
-        return r; // the receiver - allows for `oi.bridge({fn: {}})`
+        (key = r['fn']) && (force || null == key['ready']) && (key['ready'] = ready)
+        return r;
     }
     bridge['relay'] = false; // signify that this bridge only applies to this module
-
 
     /* == #integration notes =================================================
      
