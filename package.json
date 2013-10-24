@@ -1,10 +1,11 @@
 {
     "name": "oi",
-    "description": "Cross-browser domReady module with jQuery-like usage and modular integration capabilities.",
+    "description": "cross-browser domReady module",
     "version": "0.9.4",
     "homepage": "https://github.com/ryanve/oi",
-    "author": "Ryan Van Etten <@ryanve>",
-    "keywords": ["domready", "ready", "events", "ender", "javascript", "js"],
+    "license": "MIT",
+    "author": "Ryan Van Etten",
+    "keywords": ["domready", "ready", "events", "ender", "browser"],
     "main": "./oi.js",
     "ender": "./ender.js",
     "repository": {
