@@ -1,13 +1,11 @@
-[oi – cross-browser DOM ready module](https://github.com/ryanve/oi)
-==
+# [oi](../../)
+#### cross-browser DOM ready module
 
-**[CDN](http://airve.github.com)**: [dev](http://airve.github.com/js/oi/oi.js) | [min](http://airve.github.com/js/oi/oi.min.js)
-
-```
+```sh
 $ npm install oi
 ```
 
-### usage
+### Usage
 
 Fire a function when the DOM is ready:
 
@@ -24,7 +22,7 @@ oi.addEvent(elem, eventName, handler);
 oi.removeEvent(elem, eventName, handler);
 ```
 
-### integration
+### Integration
 
 **oi** has a special method called `.bridge()` designed for integration. Integrated methods include the top-level `.domReady`/`.addEvent`/`.removeEvent` methods. If the `receiver` has an `.fn` object, it will also receive `.fn.ready`. Note that `oi.domReady` and `oi.fn.ready` are identical. The latter is provided purely for integration purposes.
 
@@ -55,4 +53,8 @@ The `.domReady` (and `.fn.ready`) methods both contain both a `.remix()` method 
 receiver.domReady = oi.domReady.remix(customArg0, customArg1 /*, ...*/);
 ```
 
-See advanced [#integration notes in the source](https://github.com/ryanve/oi/blob/master/oi.js).
+See advanced [#integration notes in the source](oi.js).
+
+## [MIT License](http://opensource.org/licenses/MIT)
+
+Copyright (C) 2012 by [Ryan Van Etten](https://github.com/ryanve)
