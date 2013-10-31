@@ -1,26 +1,16 @@
 /*!
- * oi           Standalone DOM ready module with jQueryish usage and bloody
- *              ballistic integration capabilities. See #integration notes at
- *              the bottom of this file. Based on github.com/ded/domready
- * @author      Ryan Van Etten (c) 2012
- * @link        http://github.com/ryanve/oi
- * @license     MIT
- * @version     0.9.4
+ * oi 0.9.5 standalone DOM ready module
+ * @author Ryan Van Etten
+ * @link http://github.com/ryanve/oi
+ * @license MIT
  */
 
-/*jslint browser: true, devel: true, node: true, passfail: false, bitwise: true, continue: true
-, debug: true, eqeq: true, es5: true, forin: true, newcap: true, nomen: true, plusplus: true
-, regexp: true, undef: true, sloppy: true, stupid: true, sub: true, vars: true, white: true
-, indent: 4, maxerr: 180 */
-
+/*jshint expr:true, sub:true, supernew:true, debug:true, node:true, boss:true, devel:true, evil:true, 
+  laxcomma:true, eqnull:true, undef:true, unused:true, browser:true, jquery:true, maxerr:10 */
+ 
 (function(root, name, make) {
     typeof module != 'undefined' && module['exports'] ? module['exports'] = make() : root[name] = make();
 }(this, 'oi', function() {
-
-    // Array notation is used on property names that we don't want the
-    // Google Closure Compiler to rename in advanced optimization mode. 
-    // developers.google.com/closure/compiler/docs/api-tutorial3
-    // developers.google.com/closure/compiler/docs/js-for-compiler
 
     var win = window
       , doc = document
@@ -50,8 +40,9 @@
         }
 
         /** 
-         * @param {Function}           fn      function to fire when the DOM is ready
-         * @param {(Array|Arguments)=} args    arguments to pass to `fn`
+         * @link http://github.com/ded/domready
+         * @param {Function} fn to fire when the DOM is ready
+         * @param {(Array|Arguments)=} args
          */
       , readyLocal = needsHack ? function(fn, args) {
             if (self != top) {
@@ -66,23 +57,20 @@
             }
         } : pushOrFire;
 
-    // The handler (readyList[0]) calls/flushes the (rest of the) list.
+    // The handler (readyList[0]) calls/flushes the list.
     addEv(doc, readyType, readyList[0] = function() {
         var data;
         if (!needsHack || complete.test(doc.readyState)) {
             remEv(doc, readyType, readyList.shift()); // Remove/delist handler
             isReady = 1; // Record that the DOM is ready.
-            // Call/flush funcs:
-            while (data = readyList.shift()) {
-                pushOrFire(data[0], data[1]);
-            }
+            while (data = readyList.shift()) pushOrFire(data[0], data[1]);
         }
     });
     
     /** 
-     * oi.domReady.remix()    Utility for making the public domReady method(s)
-     * @param  {...}  args    0 or more args that fns passed to domReady will receive
-     *                        arguments[0] expects a host $ function when applicable
+     * oi.domReady.remix() Utility for making the public domReady method(s)
+     * @param {...}  args 0 or more args that fns passed to domReady will receive
+     *   arguments[0] expects a host $ function when applicable
      * @return {Function}
      */    
     function remixReady(args) {
@@ -105,24 +93,24 @@
     
     /**
      * oi.domReady.relay()
-     * @param   {*=} $
-     * @return  {Function}
+     * @param {*=} $
+     * @return {Function}
      */
     function relayReady($) {
         return $ ? remixReady($) : remixReady();
     }
     
     /**
-     * oi.bridge()                    Integrate applicable methods into a host.
-     *                                Uses same signature as dj.bridge (github.com/ryanve/dj)
-     * @param  {Object|Function}      r     receiver
-     * @param  {boolean=}             force whether to overwrite existing props (default: false)
-     * @param  {(Function|boolean)=}  $     top-level of the host api (default: `r`)
+     * oi.bridge() Integrate applicable methods into a host.
+     * Uses same signature as submix.bridge (github.com/ryanve/submix)
+     * @param {Object|Function} r receiver
+     * @param {boolean=} force whether to overwrite existing props (default: false)
+     * @param {(Function|boolean)=} $ top-level of the host api (default: `r`)
      */
     function bridge(r, force, $) {
         var key, ready, object;
         if (null == r) { return; }
-        ready = relayReady($ || r)
+        ready = relayReady($ || r);
         object = {
             'domReady': ready
           , 'addEvent': addEv
@@ -138,7 +126,7 @@
     bridge['relay'] = false; // signify that this bridge only applies to this module
 
     /* == #integration notes =================================================
-     
+
     Use `oi.bridge(receiver)` to integrate domReady/ready into a receiver. By
     default, the receiver will be passed to fns fired via the ready methods. 
     If you want to have a different arg passed, use the 3rd param of bridge() 
@@ -161,7 +149,5 @@
         });
 
     ========================================================================= */
-
-    // export
     return bridge({ 'fn': {}, 'bridge': bridge }, true);
 }));
